@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "anytype": {
+      "command": "node",
+      "args": ["path/to/anytype-mcp-server/dist/index.js"],
+      "env": {
+        "ANYTYPE_APP_KEY": "YOUR_API_KEY_HERE"
+      },
+      "disabled": false
+    }
+  }
+}
