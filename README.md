@@ -21,18 +21,21 @@ An MCP (Model Context Protocol) server that provides access to the Anytype API, 
 ## Installation
 
 1. Clone this repository:
-   ```
+
+   ```cli
    git clone https://github.com/yourusername/anytype-mcp-server.git
    cd anytype-mcp-server
    ```
 
 2. Install dependencies:
-   ```
+
+   ```node
    npm install
    ```
 
 3. Build the project:
-   ```
+
+   ```node
    npm run build
    ```
 
@@ -42,9 +45,11 @@ Before using the MCP server, you need to obtain an app key from the Anytype desk
 
 1. Make sure Anytype desktop is running
 2. Run the helper script:
-   ```
+
+   ```node
    npm run get-key
    ```
+
 3. Follow the instructions to authorize the application
 4. Note the app key for configuration
 
@@ -52,10 +57,11 @@ Before using the MCP server, you need to obtain an app key from the Anytype desk
 
 Add the Anytype MCP server to your MCP configuration file:
 
-- For Claude: Edit `claude_desktop_config.json` 
+- For Claude: Edit `claude_desktop_config.json`
 - For other MCP clients: Edit their respective configuration files
 
 Example configuration:
+
 ```json
 {
   "mcpServers": {
@@ -79,7 +85,7 @@ Replace `path/to/anytype-mcp-server` with the actual path to your installation a
 
 The MCP server is usually started automatically by the MCP client. However, you can also start it manually for testing:
 
-```
+```node
 npm start
 ```
 
@@ -245,6 +251,7 @@ Make sure the Anytype desktop application is running on your computer. The MCP s
 ### Authentication Issues
 
 If you encounter authentication errors:
+
 1. Run `npm run get-key` to obtain a new app key
 2. Update your MCP configuration with the new key
 3. Restart your MCP client
