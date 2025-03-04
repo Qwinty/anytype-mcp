@@ -31,6 +31,7 @@ class AnytypeServer {
     // Tool 1: Get spaces
     this.server.tool(
       "get_spaces",
+      "Retrieves all available Anytype spaces for the current user. This tool returns a list of spaces with their IDs, names, and other metadata. Use this tool to get an overview of all spaces or to find a specific space ID for use with other tools. No parameters are required.",
       {}, // Empty params schema
       async (_) => {
         try {
@@ -46,10 +47,10 @@ class AnytypeServer {
         }
       }
     );
-
     // Tool 2: Get objects in a space
     this.server.tool(
       "get_objects",
+      "Searches for and retrieves objects within a specified Anytype space. This tool allows you to list all objects or filter them using a search query. Results are paginated for better performance with large spaces. Use this tool to discover objects within a space, find specific objects by name, or browse through collections of objects.",
       {
         space_id: z.string().describe("Space ID to get objects from"),
         query: z.string().optional().default('').describe("Search query (empty for all objects)"),
@@ -81,6 +82,7 @@ class AnytypeServer {
     // Tool 3: Get object content
     this.server.tool(
       "get_object_content",
+      "Retrieves detailed content and metadata for a specific object in an Anytype space. This tool provides comprehensive information about an object including its properties, relations, and content. Use this tool when you need to examine a specific object's details after discovering its ID through the get_objects tool.",
       {
         space_id: z.string().describe("Space ID containing the object"),
         object_id: z.string().describe("Object ID to retrieve")
@@ -103,6 +105,7 @@ class AnytypeServer {
     // Tool 4: Create a new space
     this.server.tool(
       "create_space",
+      "Creates a new Anytype space with the specified name. This tool allows you to set up a fresh workspace for organizing objects and collaborating with others. Use this tool when you need to establish a new organizational container for your Anytype content.",
       {
         name: z.string().describe("Name for the new space")
       },
@@ -124,6 +127,7 @@ class AnytypeServer {
     // Tool 5: Create a new object in a space
     this.server.tool(
       "create_object",
+      "Creates a new object within a specified Anytype space. This tool allows you to add various types of content (pages, notes, tasks, etc.) to your spaces. You can specify the object's name, type, description, icon, and content. Optionally, you can use a template to create pre-structured objects. Use this tool when you need to add new content to an existing space.",
       {
         space_id: z.string().describe("Space ID to create the object in"),
         name: z.string().describe("Object name"),
@@ -161,6 +165,7 @@ class AnytypeServer {
     // Tool 6: Delete an object
     this.server.tool(
       "delete_object",
+      "Permanently removes an object from a specified Anytype space. This tool deletes the object and all its content. Use this tool with caution as deleted objects cannot be recovered. Always verify the object ID before deletion to avoid removing important content.",
       {
         space_id: z.string().describe("Space ID containing the object"),
         object_id: z.string().describe("Object ID to delete")
@@ -183,6 +188,7 @@ class AnytypeServer {
     // Tool 7: Export an object as markdown or protobuf
     this.server.tool(
       "export_object",
+      "Exports an Anytype object in either Markdown or Protobuf format. This tool allows you to extract content from Anytype for use in other applications or for backup purposes. Markdown format is human-readable and suitable for documentation, while Protobuf format preserves more structural information. Use this tool when you need to share Anytype content with external systems or create portable backups.",
       {
         space_id: z.string().describe("Space ID containing the object"),
         object_id: z.string().describe("Object ID to export"),
@@ -206,6 +212,7 @@ class AnytypeServer {
     // Tool 8: Get space members
     this.server.tool(
       "get_space_members",
+      "Retrieves a list of all members who have access to a specified Anytype space. This tool provides information about each member including their ID, name, and access level. Results are paginated for spaces with many members. Use this tool when you need to understand who has access to a space or manage collaboration permissions.",
       {
         space_id: z.string().describe("Space ID to get members from"),
         offset: z.number().optional().default(0).describe("Pagination offset"),
@@ -232,6 +239,7 @@ class AnytypeServer {
     // Tool 9: Get types in a space
     this.server.tool(
       "get_types",
+      "Retrieves all object types available in a specified Anytype space. This tool provides information about the different types of objects that can be created in the space, including their IDs, names, and metadata. Results are paginated for spaces with many types. Use this tool when you need to understand what types of objects can be created or to find the correct type ID for creating new objects.",
       {
         space_id: z.string().describe("Space ID to get types from"),
         offset: z.number().optional().default(0).describe("Pagination offset"),
@@ -258,6 +266,7 @@ class AnytypeServer {
     // Tool 10: Get type details
     this.server.tool(
       "get_type_details",
+      "Retrieves detailed information about a specific object type in an Anytype space. This tool provides comprehensive details about the type's structure, including its relations, views, and configuration options. Use this tool when you need to understand the structure of a particular object type or to examine its available relations and properties.",
       {
         space_id: z.string().describe("Space ID containing the type"),
         type_id: z.string().describe("Type ID to retrieve details for")
@@ -280,6 +289,7 @@ class AnytypeServer {
     // Tool 11: Get templates for a type
     this.server.tool(
       "get_templates",
+      "Retrieves all available templates for a specific object type in an Anytype space. Templates provide pre-configured structures and content for creating new objects. This tool returns a list of templates with their IDs, names, and metadata. Results are paginated for types with many templates. Use this tool when you need to find appropriate templates for creating new objects of a specific type.",
       {
         space_id: z.string().describe("Space ID containing the type"),
         type_id: z.string().describe("Type ID to get templates for"),
@@ -307,6 +317,7 @@ class AnytypeServer {
     // Tool 12: Get template details
     this.server.tool(
       "get_template_details",
+      "Retrieves detailed information about a specific template in an Anytype space. This tool provides comprehensive details about the template's structure, content, and configuration. Use this tool when you need to examine a template's properties before using it to create new objects, or to understand how a particular template is structured.",
       {
         space_id: z.string().describe("Space ID containing the template"),
         type_id: z.string().describe("Type ID for the template"),
