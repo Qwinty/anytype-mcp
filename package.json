@@ -2,11 +2,11 @@
   "name": "anytype-mcp-server",
   "version": "1.0.0",
   "description": "MCP server for Anytype API integration",
-  "main": "dist/index.js",
+  "main": "build/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node build/index.js",
     "dev": "ts-node --esm src/index.ts",
     "get-key": "ts-node --esm src/get-app-key.ts"
   },

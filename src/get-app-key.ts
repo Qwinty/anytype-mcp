@@ -47,7 +47,7 @@ async function main() {
   "mcpServers": {
     "anytype": {
       "command": "node",
-      "args": ["path/to/anytype-mcp-server/dist/index.js"],
+      "args": ["path/to/anytype-mcp-server/build/index.js"],
       "env": {
         "ANYTYPE_APP_KEY": "${appKey}"
       },

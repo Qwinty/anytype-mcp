@@ -1,80 +1,88 @@
 import axios from 'axios';
+import { TokenStorage } from './token-storage.js';
 export class AnytypeClient {
-    constructor(basePath = 'http://localhost:31009/v1', appKey) {
+    basePath;
+    accessToken = '';
+    tokenStorage;
+    constructor(basePath = 'http://localhost:31009/v1', appName = 'AnytypeMCP') {
         this.basePath = basePath;
-        this.appKey = appKey;
-        this.axiosInstance = axios.create({
-            baseURL: this.basePath,
-            headers: {
-                'Content-Type': 'application/json',
-                ...(this.appKey && { 'Authorization': `Bearer ${this.appKey}` })
+        this.tokenStorage = new TokenStorage(appName);
+        // Try to load saved tokens
+        this.loadSavedTokens();
+    }
+    /**
+     * Load saved tokens from storage if available
+     * @returns true if tokens were loaded successfully
+     */
+    loadSavedTokens() {
+        const savedTokens = this.tokenStorage.loadTokens();
+        if (savedTokens?.appKey) {
+            this.accessToken = savedTokens.appKey;
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Start the authentication process with Anytype
+     * @param appName Name of your application
+     * @returns Challenge ID to use with completeAuthentication
+     */
+    async startAuthentication(appName) {
+        try {
+            const response = await axios.post(`${this.basePath}/auth/display-code`, { appName });
+            if (!response.data?.challenge_id) {
+                throw new Error('Failed to get challenge ID');
             }
-        });
-        // Set up error handling for better debugging
-        this.axiosInstance.interceptors.response.use(response => response, error => {
-            console.error('API Error:', error.response?.data?.error?.message || error.message);
-            return Promise.reject(error);
-        });
+            return response.data.challenge_id;
+        }
+        catch (error) {
+            console.error('Authentication error:', error);
+            throw new Error('Failed to start authentication');
+        }
+    }
+    /**
+     * Complete the authentication process using the challenge ID and display code
+     * @param challengeId Challenge ID from startAuthentication
+     * @param code Display code shown in Anytype desktop
+     * @returns Authentication tokens
+     */
+    async completeAuthentication(challengeId, code) {
+        try {
+            const response = await axios.post(`${this.basePath}/auth/token`, {
+                challengeId,
+                code
+            });
+            if (!response.data?.session_token || !response.data?.app_key) {
+                throw new Error('Authentication failed: No session token received');
+            }
+            const tokens = {
+                session_token: response.data.session_token,
+                app_key: response.data.app_key
+            };
+            // Save tokens for future use
+            this.tokenStorage.saveTokens({
+                sessionToken: tokens.session_token,
+                appKey: tokens.app_key
+            });
+            this.accessToken = tokens.app_key;
+            return tokens;
+        }
+        catch (error) {
+            console.error('Authentication error:', error);
+            throw new Error('Failed to complete authentication');
+        }
     }
     /**
      * Check if client has valid authentication tokens
      */
     isAuthenticated() {
-        return !!this.appKey;
+        return !!this.accessToken;
     }
     /**
-     * Get all available spaces
-     * @returns Promise with spaces data
+     * Clear saved authentication tokens
      */
-    async getSpaces() {
-        try {
-            const response = await this.axiosInstance.get('/spaces');
-            return response.data;
-        }
-        catch (error) {
-            console.error('Error getting spaces:', error);
-            throw error;
-        }
-    }
-    /**
-     * Search for objects in a specific space
-     * @param spaceId Space ID to search in
-     * @param query Search query (empty string for all objects)
-     * @param offset Pagination offset
-     * @param limit Number of results per page
-     * @returns Promise with search results
-     */
-    async searchObjects(spaceId, query = '', offset = 0, limit = 50) {
-        try {
-            const response = await this.axiosInstance.post(`/spaces/${spaceId}/search`, {
-                query,
-            }, {
-                params: {
-                    offset,
-                    limit
-                }
-            });
-            return response.data;
-        }
-        catch (error) {
-            console.error('Error searching objects:', error);
-            throw error;
-        }
-    }
-    /**
-     * Get object content by ID
-     * @param spaceId Space ID
-     * @param objectId Object ID
-     * @returns Promise with object data
-     */
-    async getObjectContent(spaceId, objectId) {
-        try {
-            const response = await this.axiosInstance.get(`/spaces/${spaceId}/objects/${objectId}`);
-            return response.data;
-        }
-        catch (error) {
-            console.error('Error getting object content:', error);
-            throw error;
-        }
+    logout() {
+        this.accessToken = '';
+        this.tokenStorage.clearTokens();
     }
 }
