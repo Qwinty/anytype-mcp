@@ -67,7 +67,7 @@ Example configuration:
   "mcpServers": {
     "anytype": {
       "command": "node",
-      "args": ["path/to/anytype-mcp-server/build/index.js"],
+      "args": ["{path/to/anytype-mcp-server}/build/index.js"],
       "env": {
         "ANYTYPE_APP_KEY": "YOUR_APP_KEY_HERE"
       },

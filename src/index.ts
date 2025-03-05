@@ -50,27 +50,39 @@ class AnytypeServer {
     // Tool 2: Get objects in a space
     this.server.tool(
       "get_objects",
-      "Searches for and retrieves objects within a specified Anytype space. This tool allows you to list all objects or filter them using a search query. Results are paginated for better performance with large spaces. Use this tool to discover objects within a space, find specific objects by name, or browse through collections of objects.",
+      "Searches for and retrieves objects within a specified Anytype space. This tool allows you to list all objects or filter them using a search query. Results are paginated for better performance with large spaces. Use this tool to discover objects within a space, find specific objects by name, or browse through collections of objects. The optional include_text parameter allows retrieving the full formatted text content of objects.",
       {
         space_id: z.string().describe("Space ID to get objects from"),
         query: z.string().optional().default('').describe("Search query (empty for all objects)"),
         offset: z.number().optional().default(0).describe("Pagination offset"),
-        limit: z.number().optional().default(50).describe("Number of results per page (1-1000)")
+        limit: z.number().optional().default(50).describe("Number of results per page (1-1000)"),
+        full_response: z.boolean().optional().default(false).describe("Set to true to get full unfiltered response"),
+        include_text: z.boolean().optional().default(false).describe("Set to true to include full formatted text content from blocks")
       },
-      async ({ space_id, query, offset, limit }) => {
+      async ({ space_id, query, offset, limit, full_response, include_text }) => {
         try {
           // Validate limit
-          const validLimit = Math.max(1, Math.min(1000, limit)); 
+          const validLimit = Math.max(1, Math.min(1000, limit));
           
           // Use search endpoint as a workaround since it works better
           const response = await this.makeRequest('post', `/spaces/${space_id}/search`, {
             query
           }, { offset, limit: validLimit });
           
+          // Decide how to process the response data based on parameters
+          let responseData;
+          if (full_response) {
+            // Return unfiltered data if full_response is true
+            responseData = response.data;
+          } else {
+            // Filter the response data to remove unnecessary information
+            responseData = this.filterObjectsData(response.data, include_text);
+          }
+          
           return {
-            content: [{ 
-              type: "text" as const, 
-              text: JSON.stringify(response.data, null, 2)
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify(responseData, null, 2)
             }]
           };
         } catch (error) {
@@ -82,17 +94,27 @@ class AnytypeServer {
     // Tool 3: Get object content
     this.server.tool(
       "get_object_content",
-      "Retrieves detailed content and metadata for a specific object in an Anytype space. This tool provides comprehensive information about an object including its properties, relations, and content. Use this tool when you need to examine a specific object's details after discovering its ID through the get_objects tool.",
+      "Retrieves detailed content and metadata for a specific object in an Anytype space. This tool provides comprehensive information about an object including its properties, relations, and content. Use this tool when you need to examine a specific object's details after discovering its ID through the get_objects tool. The optional include_text parameter allows retrieving the full formatted text content of the object.",
       {
         space_id: z.string().describe("Space ID containing the object"),
-        object_id: z.string().describe("Object ID to retrieve")
+        object_id: z.string().describe("Object ID to retrieve"),
+        include_text: z.boolean().optional().default(false).describe("Set to true to include full formatted text content from blocks")
       },
-      async ({ space_id, object_id }) => {
+      async ({ space_id, object_id, include_text }) => {
         try {
           const response = await this.makeRequest('get', `/spaces/${space_id}/objects/${object_id}`);
+          
+          // Если запрошен полный текст и есть блоки с содержимым
+          if (include_text && response.data && response.data.blocks && Array.isArray(response.data.blocks)) {
+            const fullText = this.extractFullText(response.data.blocks);
+            if (fullText) {
+              response.data.full_text = fullText;
+            }
+          }
+          
           return {
-            content: [{ 
-              type: "text" as const, 
+            content: [{
+              type: "text" as const,
               text: JSON.stringify(response.data, null, 2)
             }]
           };
@@ -192,14 +214,18 @@ class AnytypeServer {
       {
         space_id: z.string().describe("Space ID containing the object"),
         object_id: z.string().describe("Object ID to export"),
-        format: z.enum(['markdown', 'protobuf']).describe("Export format")
+        format: z.enum(['markdown', 'protobuf']).describe("Export format"),
+        path: z.string().optional().describe("Path for export (full directory path without file name)")
       },
-      async ({ space_id, object_id, format }) => {
+      async ({ space_id, object_id, format, path }) => {
         try {
-          const response = await this.makeRequest('post', `/spaces/${space_id}/objects/${object_id}/export/${format}`);
+          // Создаем payload с путем для экспорта, если он указан
+          const payload = path ? { path } : undefined;
+          
+          const response = await this.makeRequest('post', `/spaces/${space_id}/objects/${object_id}/export/${format}`, payload);
           return {
-            content: [{ 
-              type: "text" as const, 
+            content: [{
+              type: "text" as const,
               text: JSON.stringify(response.data, null, 2)
             }]
           };
@@ -243,7 +269,7 @@ class AnytypeServer {
       {
         space_id: z.string().describe("Space ID to get types from"),
         offset: z.number().optional().default(0).describe("Pagination offset"),
-        limit: z.number().optional().default(100).describe("Number of results per page (1-1000)")
+        limit: z.number().optional().default(100).describe("Number of results per page (1-100)")
       },
       async ({ space_id, offset, limit }) => {
         try {
@@ -339,6 +365,89 @@ class AnytypeServer {
     );
   }
 
+  // Filter objects data to remove unnecessary information
+  private filterObjectsData(data: any, includeText: boolean = false): any {
+    if (!data || !data.data || !Array.isArray(data.data)) {
+      return data;
+    }
+
+    const filteredObjects = data.data.map((obj: any) => {
+      // Create a simplified object with only essential information
+      const simplified: any = {
+        id: obj.id,
+        type: obj.type,
+        name: obj.name,
+        icon: obj.icon,
+        layout: obj.layout,
+        space_id: obj.space_id,
+        root_id: obj.root_id
+      };
+      
+      // Включаем сниппет только если не запрашивается полный текст
+      if (!includeText) {
+        simplified.snippet = obj.snippet;
+      }
+
+      // Process blocks data
+      if (obj.blocks && Array.isArray(obj.blocks)) {
+        simplified.blocks_count = obj.blocks.length;
+        
+        // Extract full text content if requested
+        if (includeText) {
+          const fullText = this.extractFullText(obj.blocks);
+          if (fullText) {
+            simplified.full_text = fullText;
+          }
+        }
+      }
+
+      // Include simplified details (dates and creator)
+      if (obj.details && Array.isArray(obj.details)) {
+        const dates: any = {};
+        let created_by: any = null;
+        
+        obj.details.forEach((detail: any) => {
+          if (detail.id === 'created_date' && detail.details?.created_date) {
+            dates.created_date = detail.details.created_date;
+          }
+          if (detail.id === 'last_modified_date' && detail.details?.last_modified_date) {
+            dates.last_modified_date = detail.details.last_modified_date;
+          }
+          if (detail.id === 'last_opened_date' && detail.details?.last_opened_date) {
+            dates.last_opened_date = detail.details.last_opened_date;
+          }
+          if (detail.id === 'tags' && detail.details?.tags) {
+            simplified.tags = detail.details.tags;
+          }
+          // Добавление информации о создателе
+          if (detail.id === 'created_by' && detail.details?.details) {
+            created_by = {
+              name: detail.details.details.name,
+              identity: detail.details.details.identity,
+              role: detail.details.details.role
+            };
+          }
+        });
+
+        if (Object.keys(dates).length > 0) {
+          simplified.dates = dates;
+        }
+        
+        if (created_by) {
+          simplified.created_by = created_by;
+        }
+      }
+
+      return simplified;
+    });
+
+    // Return the filtered data with the same structure
+    return {
+      data: filteredObjects,
+      pagination: data.pagination
+    };
+  }
+
   // Helper method to make authenticated API requests
   private async makeRequest(method: 'get' | 'post' | 'delete', endpoint: string, data?: any, params?: any) {
     try {
@@ -358,6 +467,52 @@ class AnytypeServer {
       console.error(`API request error: ${error}`);
       throw error;
     }
+  }
+
+  // Extract full text from blocks with formatting
+  private extractFullText(blocks: any[]): string {
+    if (!blocks || !Array.isArray(blocks)) {
+      return '';
+    }
+
+    // Сопоставление стилей Anytype с текстовыми эквивалентами
+    const styleMap: Record<string, { prefix: string, suffix: string }> = {
+      'Header1': { prefix: '# ', suffix: '\n\n' },
+      'Header2': { prefix: '## ', suffix: '\n\n' },
+      'Header3': { prefix: '### ', suffix: '\n\n' },
+      'Header4': { prefix: '#### ', suffix: '\n\n' },
+      'Paragraph': { prefix: '', suffix: '\n\n' },
+      'Marked': { prefix: '* ', suffix: '\n' },    // Маркированный список
+      'Checkbox': { prefix: '- [ ] ', suffix: '\n' }, // Чекбокс по умолчанию не отмечен
+      'Quote': { prefix: '> ', suffix: '\n\n' },
+      'Code': { prefix: '```\n', suffix: '\n```\n\n' } // Блок кода
+    };
+
+    // Формирование отформатированного текста из блоков
+    const textParts: string[] = [];
+
+    blocks.forEach(block => {
+      if (block.text && typeof block.text.text === 'string') {
+        const style = block.text.style || 'Paragraph';
+        const isChecked = block.text.checked === true;
+        
+        // Получение форматирования для данного стиля
+        let formatting = styleMap[style] || { prefix: '', suffix: '\n' };
+        
+        // Особая обработка для чекбоксов
+        if (style === 'Checkbox') {
+          formatting = {
+            prefix: isChecked ? '- [x] ' : '- [ ] ',
+            suffix: '\n'
+          };
+        }
+        
+        // Добавление форматированного текста
+        textParts.push(`${formatting.prefix}${block.text.text}${formatting.suffix}`);
+      }
+    });
+
+    return textParts.join('');
   }
 
   // Helper to handle API errors in a consistent way
