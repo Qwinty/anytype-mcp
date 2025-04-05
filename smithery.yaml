@@ -1,0 +1,24 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - anytypeAppKey
+    properties:
+      anytypeAppKey:
+        type: string
+        description: The Anytype App Key obtained from the Anytype desktop application.
+      apiPort:
+        type: number
+        default: 31009
+        description: The port on which the Anytype API is available (default is 31009).
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'node', args: ['build/index.js'], env: { ANYTYPE_APP_KEY: config.anytypeAppKey, API_PORT: String(config.apiPort) } })
+  exampleConfig:
+    anytypeAppKey: YOUR_DUMMY_APP_KEY
+    apiPort: 31009
