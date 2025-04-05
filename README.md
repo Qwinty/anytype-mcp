@@ -4,13 +4,14 @@ An MCP (Model Context Protocol) server that provides access to the Anytype API, 
 
 ## Features
 
-- Get list of spaces
-- Get objects from spaces
-- Get detailed object content
-- Create and delete spaces and objects
-- Export objects as markdown or protobuf
-- Get space members
-- Get types and templates
+- Get list of spaces (`get_spaces`)
+- Search/Get objects within a space (`get_objects`) or globally (`global_search`)
+- Get detailed object content (`get_object_content`)
+- Create and delete spaces (`create_space`) and objects (`create_object`, `delete_object`)
+- Export objects as markdown (`export_object`)
+- Manage list views and objects within lists (`get_list_views`, `get_list_view_objects`, `add_objects_to_list`, `remove_object_from_list`)
+- Get space members (`get_space_members`)
+- Get types and templates (`get_types`, `get_type_details`, `get_templates`, `get_template_details`)
 
 ## Prerequisites
 
@@ -146,8 +147,10 @@ The server provides the following tools to MCP clients:
   "name": "create_object",
   "arguments": {
     "space_id": "your-space-id",
-    "name": "My New Object",
-    "object_type_unique_key": "ot-page"
+    "name": "My New Page",
+    "type_key": "ot-page", // Changed from object_type_unique_key
+    "body": "## Hello World\n\nThis is the content.",
+    "source": "https://example.com" // Optional: for bookmarks
   }
 }
 ```
@@ -164,7 +167,7 @@ The server provides the following tools to MCP clients:
 }
 ```
 
-#### 7. Export an Object
+#### 7. Export an Object (Markdown only)
 
 ```json
 {
@@ -172,7 +175,7 @@ The server provides the following tools to MCP clients:
   "arguments": {
     "space_id": "your-space-id",
     "object_id": "your-object-id",
-    "format": "markdown"
+    "format": "markdown" // Only markdown is supported
   }
 }
 ```
@@ -239,6 +242,80 @@ The server provides the following tools to MCP clients:
     "type_id": "your-type-id",
     "template_id": "your-template-id"
   }
+}
+}
+}
+```
+
+#### 13. Get List Views
+
+```json
+{
+"name": "get_list_views",
+"arguments": {
+  "space_id": "your-space-id",
+  "list_id": "your-list-object-id",
+  "offset": 0,
+  "limit": 100
+}
+}
+```
+
+#### 14. Get Objects in List View
+
+```json
+{
+"name": "get_list_view_objects",
+"arguments": {
+  "space_id": "your-space-id",
+  "list_id": "your-list-object-id",
+  "view_id": "your-view-id",
+  "offset": 0,
+  "limit": 100
+}
+}
+```
+
+#### 15. Add Objects to List
+
+```json
+{
+"name": "add_objects_to_list",
+"arguments": {
+  "space_id": "your-space-id",
+  "list_id": "your-list-object-id",
+  "object_ids": ["object-id-1", "object-id-2"]
+}
+}
+```
+
+#### 16. Remove Object from List
+
+```json
+{
+"name": "remove_object_from_list",
+"arguments": {
+  "space_id": "your-space-id",
+  "list_id": "your-list-object-id",
+  "object_id": "object-id-to-remove"
+}
+}
+```
+
+#### 17. Global Search
+
+```json
+{
+"name": "global_search",
+"arguments": {
+  "query": "search term",
+  "types": ["ot-page", "ot-task"], // Optional
+  "sort_property": "last_modified_date", // Optional
+  "sort_direction": "desc", // Optional
+  "offset": 0,
+  "limit": 100,
+  "include_text": false // Optional, defaults to false
+}
 }
 ```
 

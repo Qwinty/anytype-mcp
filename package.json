@@ -7,8 +7,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node build/index.js",
-    "dev": "ts-node --esm src/index.ts",
-    "get-key": "ts-node --esm src/get-app-key.ts"
+    "dev": "tsx src/index.ts",
+    "get-key": "tsx src/get-app-key.ts"
   },
   "keywords": [
     "anytype",
@@ -20,11 +20,11 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",
     "axios": "^1.6.7",
+    "tsx": "^4.19.3",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20.11.19",
-    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
 }
