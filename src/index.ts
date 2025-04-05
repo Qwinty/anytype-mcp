@@ -1039,8 +1039,7 @@ class AnytypeServer {
       content: [
         {
           type: "text" as const,
-          text: `Error: ${errorMessage}`,
-          error: error,
+          text: `Error: ${errorMessage}\n\n${error}`,
         },
       ],
       isError: true,
