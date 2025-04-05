@@ -984,14 +984,57 @@ class AnytypeServer {
 
   // Helper to handle API errors in a consistent way
   private handleApiError(error: any) {
+    let errorMessage = "Unknown API error";
+
+    // Handle network errors first
     if (error.code === "ECONNREFUSED") {
       errorMessage = "Anytype is not running. Launch it and try again.";
-    } else {
-      var errorMessage =
-        error.response?.data?.error?.message ||
-        error.message ||
-        "Unknown API error";
+      return this.printError(errorMessage);
     }
+
+    // Handle API response errors
+    const status = error.response?.status;
+    const apiError = error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        errorMessage = apiError?.message || "Bad request";
+        if (apiError?.code === "validation_error") {
+          errorMessage +=
+            ". Invalid parameters: " +
+            (apiError.details
+              ?.map((d: { field: string }) => d.field)
+              .join(", ") || "unknown fields");
+        }
+        break;
+      case 401:
+        errorMessage = "Unauthorized - Check your App Key";
+        break;
+      case 403:
+        errorMessage =
+          "Forbidden - You don't have permission for this operation";
+        break;
+      case 404:
+        errorMessage = "Not found - The requested resource doesn't exist";
+        break;
+      case 429:
+        errorMessage = "Rate limit exceeded - Try again later";
+        break;
+      case 500:
+        errorMessage = "Internal server error - Contact Anytype support";
+        break;
+      default:
+        if (status >= 500 && status < 600) {
+          errorMessage = `Server error (${status}) - Try again later`;
+        } else if (apiError?.message) {
+          errorMessage = apiError.message;
+        }
+        break;
+    }
+    return this.printError(errorMessage);
+  }
+
+  private printError(errorMessage: any) {
     return {
       content: [
         {
