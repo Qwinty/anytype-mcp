@@ -32,6 +32,7 @@ npx -y @smithery/cli install @Qwinty/anytype-mcp --client claude
 ```
 
 ### Manual Installation
+
 1. Clone this repository:
 
    ```cli
@@ -50,6 +51,8 @@ npx -y @smithery/cli install @Qwinty/anytype-mcp --client claude
    ```node
    npm run build
    ```
+
+4. **Obtain an App Key:** Before configuring the server, you need an App Key from Anytype. See the "Getting an App Key" section below.
 
 ## Getting an App Key
 
