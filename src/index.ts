@@ -989,7 +989,7 @@ class AnytypeServer {
     // Handle network errors first
     if (error.code === "ECONNREFUSED") {
       errorMessage = "Anytype is not running. Launch it and try again.";
-      return this.printError(errorMessage);
+      return this.printError(error, errorMessage);
     }
 
     // Handle API response errors
@@ -1031,15 +1031,16 @@ class AnytypeServer {
         }
         break;
     }
-    return this.printError(errorMessage);
+    return this.printError(apiError, errorMessage);
   }
 
-  private printError(errorMessage: any) {
+  private printError(error: any, errorMessage: any) {
     return {
       content: [
         {
           type: "text" as const,
           text: `Error: ${errorMessage}`,
+          error: error,
         },
       ],
       isError: true,
