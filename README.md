@@ -23,6 +23,15 @@ An MCP (Model Context Protocol) server that provides access to the Anytype API, 
 
 ## Installation
 
+### Installing via Smithery
+
+To install Anytype MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@Qwinty/anytype-mcp):
+
+```bash
+npx -y @smithery/cli install @Qwinty/anytype-mcp --client claude
+```
+
+### Manual Installation
 1. Clone this repository:
 
    ```cli
