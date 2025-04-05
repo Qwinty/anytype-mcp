@@ -55,32 +55,12 @@ class AnytypeServer {
       "Searches for and retrieves objects within a specified Anytype space. This tool allows you to list all objects or filter them using a search query. Results are paginated for better performance with large spaces. Use this tool to discover objects within a space, find specific objects by name, or browse through collections of objects. The optional include_text parameter allows retrieving the full formatted text content of objects.",
       {
         space_id: z.string().describe("Space ID to get objects from"),
-        query: z
-          .string()
-          .optional()
-          .default("")
-          .describe("Search query (empty for all objects)"),
         offset: z.number().optional().default(0).describe("Pagination offset"),
         limit: z
           .number()
           .optional()
-          .default(50)
+          .default(100)
           .describe("Number of results per page (1-1000)"),
-        sort_property: z
-          .enum([
-            "created_date",
-            "last_modified_date",
-            "last_opened_date",
-            "name",
-          ])
-          .optional()
-          .default("last_modified_date")
-          .describe("Property to sort by"),
-        sort_direction: z
-          .enum(["asc", "desc"])
-          .optional()
-          .default("desc")
-          .describe("Sort direction"),
         full_response: z
           .boolean()
           .optional()
@@ -94,32 +74,17 @@ class AnytypeServer {
             "Set to true to include full formatted text content from blocks"
           ),
       },
-      async ({
-        space_id,
-        query,
-        offset,
-        limit,
-        sort_property,
-        sort_direction,
-        full_response,
-        include_text,
-      }) => {
+      async ({ space_id, offset, limit, full_response, include_text }) => {
         try {
           // Validate limit
           const validLimit = Math.max(1, Math.min(1000, limit));
 
-          // Use search endpoint as a workaround since it works better
+          // Use the GET /objects endpoint
           const response = await this.makeRequest(
-            "post",
-            `/spaces/${space_id}/search`,
-            {
-              query,
-              sort: {
-                property: sort_property,
-                direction: sort_direction,
-              },
-            },
-            { offset, limit: validLimit }
+            "get",
+            `/spaces/${space_id}/objects`,
+            null, // No request body for GET
+            { offset, limit: validLimit } // Pass offset and limit as query params
           );
 
           // Decide how to process the response data based on parameters
@@ -168,16 +133,19 @@ class AnytypeServer {
             `/spaces/${space_id}/objects/${object_id}`
           );
 
+          // Handle new response format with nested 'object' property
+          const responseData = response.data.object || response.data;
+
           // Если запрошен полный текст и есть блоки с содержимым
           if (
             include_text &&
-            response.data &&
-            response.data.blocks &&
-            Array.isArray(response.data.blocks)
+            responseData &&
+            responseData.blocks &&
+            Array.isArray(responseData.blocks)
           ) {
-            const fullText = this.extractFullText(response.data.blocks);
+            const fullText = this.extractFullText(responseData.blocks);
             if (fullText) {
-              response.data.full_text = fullText;
+              responseData.full_text = fullText;
             }
           }
 
@@ -185,7 +153,7 @@ class AnytypeServer {
             content: [
               {
                 type: "text" as const,
-                text: JSON.stringify(response.data, null, 2),
+                text: JSON.stringify(responseData, null, 2),
               },
             ],
           };
@@ -230,7 +198,31 @@ class AnytypeServer {
           .string()
           .describe("Type key of object to create (e.g. 'ot-page')"),
         description: z.string().optional().describe("Object description"),
-        icon: z.string().optional().describe("Object icon"),
+        icon: z
+          .object({
+            format: z
+              .enum(["emoji", "file", "icon"])
+              .describe("Icon format (required if icon is provided)"),
+            emoji: z
+              .string()
+              .optional()
+              .describe("Emoji character (if format is 'emoji')"),
+            file: z
+              .string()
+              .url()
+              .optional()
+              .describe("URL to the icon file (if format is 'file')"),
+            name: z
+              .string()
+              .optional()
+              .describe("Name of the built-in icon (if format is 'icon')"),
+            color: z
+              .string()
+              .optional()
+              .describe("Color of the icon (optional)"),
+          })
+          .optional()
+          .describe("Object icon details (structure based on API docs)"),
         body: z
           .string()
           .optional()
@@ -727,6 +719,104 @@ class AnytypeServer {
         }
       }
     );
+
+    // Tool 18: Search objects within a specific space
+    this.server.tool(
+      "search_space",
+      "Executes a search within a specific space, with options for filtering by type and sorting.",
+      {
+        space_id: z.string().describe("Space ID to search within"),
+        query: z.string().optional().describe("Search term"),
+        types: z
+          .array(z.string())
+          .optional()
+          .describe("Optional list of object type keys or IDs to filter by"),
+        sort_property: z
+          .enum([
+            "created_date",
+            "last_modified_date",
+            "last_opened_date",
+            "name",
+          ])
+          .optional()
+          .default("last_modified_date")
+          .describe("Property to sort by"),
+        sort_direction: z
+          .enum(["asc", "desc"])
+          .optional()
+          .default("desc")
+          .describe("Sort direction"),
+        offset: z.number().optional().default(0).describe("Pagination offset"),
+        limit: z
+          .number()
+          .optional()
+          .default(100)
+          .describe("Number of results per page (1-1000)"),
+        full_response: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Set to true to get full unfiltered response"),
+        include_text: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe(
+            "Set to true to include full formatted text content from blocks. USE WITH CAUTION: This can return a large amount of data."
+          ),
+      },
+      async ({
+        space_id,
+        query,
+        types,
+        sort_property,
+        sort_direction,
+        offset,
+        limit,
+        full_response,
+        include_text,
+      }) => {
+        try {
+          const validLimit = Math.max(1, Math.min(1000, limit));
+          const searchRequest: any = { query };
+          if (types) {
+            searchRequest.types = types;
+          }
+          searchRequest.sort = {
+            property: sort_property,
+            direction: sort_direction,
+          };
+
+          const response = await this.makeRequest(
+            "post",
+            `/spaces/${space_id}/search`,
+            searchRequest,
+            { offset, limit: validLimit }
+          );
+
+          // Decide how to process the response data based on parameters
+          let responseData;
+          if (full_response) {
+            // Return unfiltered data if full_response is true
+            responseData = response.data;
+          } else {
+            // Filter the response data
+            responseData = this.filterObjectsData(response.data, include_text);
+          }
+
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(responseData, null, 2),
+              },
+            ],
+          };
+        } catch (error) {
+          return this.handleApiError(error);
+        }
+      }
+    );
   }
 
   // Filter objects data to remove unnecessary information
@@ -747,7 +837,7 @@ class AnytypeServer {
         root_id: obj.root_id,
       };
 
-      // Включаем сниппет только если не запрашивается полный текст
+      // Include snippet only if not requested full text
       if (!includeText) {
         simplified.snippet = obj.snippet;
       }
@@ -894,10 +984,14 @@ class AnytypeServer {
 
   // Helper to handle API errors in a consistent way
   private handleApiError(error: any) {
-    const errorMessage =
-      error.response?.data?.error?.message ||
-      error.message ||
-      "Unknown API error";
+    if (error.code === "ECONNREFUSED") {
+      errorMessage = "Anytype is not running. Launch it and try again.";
+    } else {
+      var errorMessage =
+        error.response?.data?.error?.message ||
+        error.message ||
+        "Unknown API error";
+    }
     return {
       content: [
         {
