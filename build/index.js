@@ -40,13 +40,13 @@ class AnytypeServer {
             }
         });
         // Tool 2: Get objects in a space
-        this.server.tool("get_objects", "Searches for and retrieves objects within a specified Anytype space. This tool allows you to list all objects or filter them using a search query. Results are paginated for better performance with large spaces. Use this tool to discover objects within a space, find specific objects by name, or browse through collections of objects.", {
+        this.server.tool("get_objects", "Searches for and retrieves objects within a specified Anytype space. This tool allows you to list all objects or filter them using a search query. Results are paginated for better performance with large spaces. Use this tool to discover objects within a space, find specific objects by name, or browse through collections of objects. The optional include_text parameter allows retrieving the full formatted text content of objects.", {
             space_id: z.string().describe("Space ID to get objects from"),
             query: z.string().optional().default('').describe("Search query (empty for all objects)"),
             offset: z.number().optional().default(0).describe("Pagination offset"),
             limit: z.number().optional().default(50).describe("Number of results per page (1-1000)"),
             full_response: z.boolean().optional().default(false).describe("Set to true to get full unfiltered response"),
-            include_text: z.boolean().optional().default(false).describe("Set to true to include full text content from blocks")
+            include_text: z.boolean().optional().default(false).describe("Set to true to include full formatted text content from blocks")
         }, async ({ space_id, query, offset, limit, full_response, include_text }) => {
             try {
                 // Validate limit
@@ -77,12 +77,20 @@ class AnytypeServer {
             }
         });
         // Tool 3: Get object content
-        this.server.tool("get_object_content", "Retrieves detailed content and metadata for a specific object in an Anytype space. This tool provides comprehensive information about an object including its properties, relations, and content. Use this tool when you need to examine a specific object's details after discovering its ID through the get_objects tool.", {
+        this.server.tool("get_object_content", "Retrieves detailed content and metadata for a specific object in an Anytype space. This tool provides comprehensive information about an object including its properties, relations, and content. Use this tool when you need to examine a specific object's details after discovering its ID through the get_objects tool. The optional include_text parameter allows retrieving the full formatted text content of the object.", {
             space_id: z.string().describe("Space ID containing the object"),
-            object_id: z.string().describe("Object ID to retrieve")
-        }, async ({ space_id, object_id }) => {
+            object_id: z.string().describe("Object ID to retrieve"),
+            include_text: z.boolean().optional().default(false).describe("Set to true to include full formatted text content from blocks")
+        }, async ({ space_id, object_id, include_text }) => {
             try {
                 const response = await this.makeRequest('get', `/spaces/${space_id}/objects/${object_id}`);
+                // Если запрошен полный текст и есть блоки с содержимым
+                if (include_text && response.data && response.data.blocks && Array.isArray(response.data.blocks)) {
+                    const fullText = this.extractFullText(response.data.blocks);
+                    if (fullText) {
+                        response.data.full_text = fullText;
+                    }
+                }
                 return {
                     content: [{
                             type: "text",
@@ -169,7 +177,7 @@ class AnytypeServer {
             space_id: z.string().describe("Space ID containing the object"),
             object_id: z.string().describe("Object ID to export"),
             format: z.enum(['markdown', 'protobuf']).describe("Export format"),
-            path: z.string().optional().describe("Path for export (directory path without file name)")
+            path: z.string().optional().describe("Path for export (full directory path without file name)")
         }, async ({ space_id, object_id, format, path }) => {
             try {
                 // Создаем payload с путем для экспорта, если он указан
@@ -211,7 +219,7 @@ class AnytypeServer {
         this.server.tool("get_types", "Retrieves all object types available in a specified Anytype space. This tool provides information about the different types of objects that can be created in the space, including their IDs, names, and metadata. Results are paginated for spaces with many types. Use this tool when you need to understand what types of objects can be created or to find the correct type ID for creating new objects.", {
             space_id: z.string().describe("Space ID to get types from"),
             offset: z.number().optional().default(0).describe("Pagination offset"),
-            limit: z.number().optional().default(100).describe("Number of results per page (1-1000)")
+            limit: z.number().optional().default(100).describe("Number of results per page (1-100)")
         }, async ({ space_id, offset, limit }) => {
             try {
                 // Validate limit
