@@ -3,6 +3,8 @@
 [![smithery badge](https://smithery.ai/badge/@Qwinty/anytype-mcp)](https://smithery.ai/server/@Qwinty/anytype-mcp)
 
 An MCP (Model Context Protocol) server that provides access to the Anytype API, allowing AI assistants and other MCP clients to interact with your Anytype data.
+**Tested and working with Anytype 0.45.47-beta.**
+**Waiting for the official API release in 0.46 version**
 
 ## Features
 
