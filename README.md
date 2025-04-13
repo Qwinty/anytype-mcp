@@ -103,6 +103,10 @@ npm start
 
 See [Tools.md](docs/Tools.md) for a detailed list of available tools and their usage examples.
 
+### System Prompt
+
+Additionally, a sample system prompt for AI assistants using this server is available in [docs/system-prompt.md](docs/system-prompt.md).
+
 ## Token Efficiency and Data Filtering
 
 To optimize for token usage with AI assistants, this MCP server implements response filtering by default for tools that return object data (`get_objects`, `global_search`, `search_space`).
