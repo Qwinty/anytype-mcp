@@ -31,8 +31,8 @@ An MCP (Model Context Protocol) server that provides access to the Anytype API, 
 1. Clone this repository:
 
    ```cli
-   git clone https://github.com/yourusername/anytype-mcp-server.git
-   cd anytype-mcp-server
+   git clone https://github.com/Qwinty/anytype-mcp.git
+   cd anytype-mcp
    ```
 
 2. Install dependencies:
@@ -77,7 +77,7 @@ Example configuration:
   "mcpServers": {
     "anytype": {
       "command": "node",
-      "args": ["{path/to/anytype-mcp-server}/build/index.js"],
+      "args": ["{path/to/anytype-mcp}/build/index.js"],
       "env": {
         "ANYTYPE_APP_KEY": "YOUR_APP_KEY_HERE"
       },
@@ -87,7 +87,7 @@ Example configuration:
 }
 ```
 
-Replace `path/to/anytype-mcp-server` with the actual path to your installation and `YOUR_APP_KEY_HERE` with the app key you obtained.
+Replace `path/to/anytype-mcp` with the actual path to your installation and `YOUR_APP_KEY_HERE` with the app key you obtained.
 
 ## Usage
 
