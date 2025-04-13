@@ -1,0 +1,192 @@
+{
+    "data": [
+        {
+            "object": "type",
+            "id": "bafyreihq545nmpmexurzoxojfubgsal2i534vw5cxl4ube5wm7unn4nzim",
+            "key": "ot-audio",
+            "name": "Audio",
+            "icon": {
+                "format": "icon",
+                "name": "musical-notes",
+                "color": "pink"
+            },
+            "archived": false,
+            "recommended_layout": "file"
+        },
+        {
+            "object": "type",
+            "id": "bafyreic5vfpgnq22peuezj6sixxni2ckdmoj5b4kfhe2xa7lkutou4z2pa",
+            "key": "ot-bookmark",
+            "name": "Bookmark",
+            "icon": {
+                "format": "icon",
+                "name": "bookmark",
+                "color": "red"
+            },
+            "archived": false,
+            "recommended_layout": "bookmark"
+        },
+        {
+            "object": "type",
+            "id": "bafyreihq4pdparqg4eykaukl4j5n22q4gl2pizqk7pkgiqsm4qtytqfzgm",
+            "key": "ot-collection",
+            "name": "Collection",
+            "icon": {
+                "format": "icon",
+                "name": "layers",
+                "color": "blue"
+            },
+            "archived": false,
+            "recommended_layout": "collection"
+        },
+        {
+            "object": "type",
+            "id": "bafyreihnqszu2bzqvqr3z7wh4x7h5bsr6qu5oqy4l5qp4g5v37765xl5jm",
+            "key": "ot-file",
+            "name": "File",
+            "icon": {
+                "format": "icon",
+                "name": "attach",
+                "color": "blue"
+            },
+            "archived": false,
+            "recommended_layout": "file"
+        },
+        {
+            "object": "type",
+            "id": "bafyreiew77n5uwq2zm6gbyvuzgfefhdeehndhqyxrn7rt62ivjo6uc4wmi",
+            "key": "ot-image",
+            "name": "Image",
+            "icon": {
+                "format": "icon",
+                "name": "image",
+                "color": "lime"
+            },
+            "archived": false,
+            "recommended_layout": "image"
+        },
+        {
+            "object": "type",
+            "id": "bafyreig7vua53z5kwazwilgwzm6oqd2hdewcl62als5u7e6gybpnnvsuva",
+            "key": "ot-note",
+            "name": "Note",
+            "icon": {
+                "format": "icon",
+                "name": "create",
+                "color": "yellow"
+            },
+            "archived": false,
+            "recommended_layout": "note"
+        },
+        {
+            "object": "type",
+            "id": "bafyreic26wu2ztiffrespfmpvmbcumvqnua2mnvak5ka5boxvrrbnqsuxq",
+            "key": "ot-page",
+            "name": "Page",
+            "icon": {
+                "format": "icon",
+                "name": "document",
+                "color": "ice"
+            },
+            "archived": false,
+            "recommended_layout": "basic"
+        },
+        {
+            "object": "type",
+            "id": "bafyreia7e3njp22w5u5e5yztmpi6doyqzjeda2zljslcsnteaqzpuatv2e",
+            "key": "ot-project",
+            "name": "Project",
+            "icon": {
+                "format": "icon",
+                "name": "hammer",
+                "color": "orange"
+            },
+            "archived": false,
+            "recommended_layout": "basic"
+        },
+        {
+            "object": "type",
+            "id": "bafyreifvumuu5bqfunqwdzyz3xopgeep7nvidx4iba5p5lnqvhfdr4h6t4",
+            "key": "ot-set",
+            "name": "Query",
+            "icon": {
+                "format": "icon",
+                "name": "search",
+                "color": "purple"
+            },
+            "archived": false,
+            "recommended_layout": "set"
+        },
+        {
+            "object": "type",
+            "id": "bafyreihft2gywrrewbft3qtukwd54xonhxgh2myz5wen5sco2w7667i2dm",
+            "key": "ot-participant",
+            "name": "Space member",
+            "icon": {
+                "format": "icon",
+                "name": "person",
+                "color": "orange"
+            },
+            "archived": false,
+            "recommended_layout": "participant"
+        },
+        {
+            "object": "type",
+            "id": "bafyreicxehfttafu2fuunarf6mxetxcgtuqui5v62mdek4gnc276eh2mji",
+            "key": "ot-task",
+            "name": "Task",
+            "icon": {
+                "format": "icon",
+                "name": "checkbox",
+                "color": "lime"
+            },
+            "archived": false,
+            "recommended_layout": "todo"
+        },
+        {
+            "object": "type",
+            "id": "bafyreib5kfvpujckmphub7cnu23z2zp72ppbfh2sb3hfgyfdav6ort2j4q",
+            "key": "ot-template",
+            "name": "Template",
+            "icon": {
+                "format": "icon",
+                "name": "copy",
+                "color": "ice"
+            },
+            "archived": false,
+            "recommended_layout": "basic"
+        },
+        {
+            "object": "type",
+            "id": "bafyreifiqicr23rfrvwjew2ndqvbp27txasghom2athvpbkzdmukb45tiy",
+            "key": "ot-objectType",
+            "name": "Type",
+            "icon": {
+                "format": "icon",
+                "name": "extension-puzzle",
+                "color": "teal"
+            },
+            "archived": false,
+            "recommended_layout": "objectType"
+        },
+        {
+            "object": "type",
+            "id": "bafyreie6zxpyorby3h46bpk5ckh3frac5cyq57yrkpgtq6gwpnypu4h2lq",
+            "key": "ot-video",
+            "name": "Video",
+            "icon": {
+                "format": "icon",
+                "name": "videocam",
+                "color": "purple"
+            },
+            "archived": false,
+            "recommended_layout": "file"
+        }
+    ],
+    "pagination": {
+        "total": 14,
+        "offset": 0,
+        "limit": 100,
+        "has_more": false
+    }
+}
