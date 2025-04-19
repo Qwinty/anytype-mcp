@@ -197,7 +197,10 @@ class AnytypeServer {
         type_key: z
           .string()
           .describe("Type key of object to create (e.g. 'ot-page')"),
-        description: z.string().optional().describe("Object description"),
+        description: z
+          .string()
+          .optional()
+          .describe("Object's short description"),
         icon: z
           .object({
             format: z

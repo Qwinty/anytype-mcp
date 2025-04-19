@@ -4,8 +4,7 @@
 
 An MCP (Model Context Protocol) server that provides access to the Anytype API, allowing AI assistants and other MCP clients to interact with your Anytype data.
 
-**Tested and working with Anytype 0.45.47-beta.**
-**Waiting for the official API release in 0.46 version**
+**Based on the Anytype API definition v0.46.1 (2025-03-17).** Ensure your Anytype Desktop version is compatible.
 
 ## Features
 
@@ -41,7 +40,7 @@ An MCP (Model Context Protocol) server that provides access to the Anytype API, 
    npm install
    ```
 
-3. Build the project:
+3. Build the project (compiles TypeScript to JavaScript in `build/`):
 
    ```node
    npm run build
@@ -113,7 +112,7 @@ To optimize for token usage with AI assistants, this MCP server implements respo
 
 - **Default Behavior:** The server returns a simplified version of object data, including essential metadata like ID, name, type, icon, layout, space ID, root ID, snippet (if available), block count, tags, creation/modification dates, and creator info. Full block content and detailed relations are omitted.
 - **`include_text: true`:** Several tools (`get_objects`, `get_object_content`, `global_search`, `search_space`) support an optional `include_text` parameter. When set to `true`, the server will extract and include the full, formatted text content from the object's blocks in a `full_text` field. Use this when you need the complete text, but be aware it significantly increases response size and token count.
-- **`full_response: true`:** The `get_objects` and `search_space` tools also support a `full_response` parameter. Setting this to `true` bypasses all filtering and returns the raw, complete JSON response directly from the Anytype API. This provides the most detail but uses the most tokens.
+- **`full_response: true`:** The `get_objects`, `global_search`, and `search_space` tools also support a `full_response` parameter. Setting this to `true` bypasses all filtering and returns the raw, complete JSON response directly from the Anytype API. This provides the most detail but uses the most tokens.
 
 Choose the appropriate parameters based on whether you need just metadata, full text content, or the complete raw API response.
 
@@ -133,7 +132,7 @@ If you encounter authentication errors:
 
 ### Local API Port
 
-By default, Anytype listens on port 31009. If your installation uses a different port, modify the `apiBaseUrl` in `src/index.ts` accordingly.
+The server connects to the Anytype API at `http://localhost:31009/v1` by default. If your Anytype installation uses a different port, you currently need to modify the `apiBaseUrl` variable in `src/index.ts` and rebuild (`npm run build`). Making this configurable via an environment variable is a potential future improvement.
 
 ## License
 
