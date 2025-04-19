@@ -24,7 +24,6 @@ You have access to the following capabilities through the Anytype MCP server too
 **Object Creation & Deletion:**
 
 * `create_object`: Create a new object in a space (requires `space_id`, `name`, `type_key`). Can optionally set description, icon, body (Markdown), template, or source (for bookmarks).
-  You can link to other Anytype objects within the `body` using Markdown links: `[link text](anytype://object?objectId=<object_id>)`.
 
 * `delete_object`: Archives (marks as deleted) an object. **Use with caution.**
 
