@@ -4,7 +4,8 @@
 
 An MCP (Model Context Protocol) server that provides access to the Anytype API, allowing AI assistants and other MCP clients to interact with your Anytype data.
 
-**Based on the Anytype API definition v0.46.1 (2025-03-17).** Ensure your Anytype Desktop version is compatible.
+**Based on the Anytype API definition v0.46+ (2025-03-17).**
+Ensure your Anytype Desktop version is compatible.
 
 ## Features
 
@@ -47,6 +48,7 @@ An MCP (Model Context Protocol) server that provides access to the Anytype API, 
    ```
 
 4. **Obtain an App Key:** Before configuring the server, you need an App Key from Anytype. See the "Getting an App Key" section below.
+5. Add the MCP server to your MCP configuration file
 
 ## Getting an App Key
 
