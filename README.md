@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/qwinty-anytype-mcp-badge.png)](https://mseep.ai/app/qwinty-anytype-mcp)
+
 # Anytype MCP Server
 
 [![smithery badge](https://smithery.ai/badge/@Qwinty/anytype-mcp)](https://smithery.ai/server/@Qwinty/anytype-mcp)
