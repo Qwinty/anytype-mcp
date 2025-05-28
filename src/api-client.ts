@@ -55,7 +55,7 @@ export class AnytypeClient {
       return response.data.challenge_id;
     } catch (error) {
       console.error("Authentication error:", error);
-      throw new Error("Failed to start authentication");
+      throw error;
     }
   }
 
@@ -93,7 +93,7 @@ export class AnytypeClient {
       return tokens;
     } catch (error) {
       console.error("Authentication error:", error);
-      throw new Error("Failed to complete authentication");
+      throw error;
     }
   }
 

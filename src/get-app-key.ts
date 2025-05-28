@@ -59,7 +59,24 @@ async function main() {
 }
 `);
   } catch (error) {
-    console.error("Error:", error instanceof Error ? error.message : error);
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase();
+      if (
+        errorMessage.includes("fetch") ||
+        errorMessage.includes("econnrefused") ||
+        errorMessage.includes("enotfound") ||
+        errorMessage.includes("unreachable") ||
+        (error.name === "TypeError" && errorMessage.includes("failed to fetch")) // Common browser/node fetch error
+      ) {
+        console.error(
+          `Error: Could not connect to the Anytype daemon at http://localhost:31009/v1. Please ensure Anytype is running and accessible.`
+        );
+      } else {
+        console.error("Error:", error.message);
+      }
+    } else {
+      console.error("An unknown error occurred:", error);
+    }
   } finally {
     rl.close();
   }
