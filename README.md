@@ -1,3 +1,6 @@
+# OFFICIAL ANYTYPE MCP WAS RELEASED HERE
+https://github.com/anyproto/anytype-mcp
+
 # Anytype MCP Server
 
 [![smithery badge](https://smithery.ai/badge/@Qwinty/anytype-mcp)](https://smithery.ai/server/@Qwinty/anytype-mcp)
